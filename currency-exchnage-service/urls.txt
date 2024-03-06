@@ -1,0 +1,9 @@
+currency exchange service
+http://localhost:8000/currency-exchange/from/USD/to/INR
+
+currency conversion service
+http://localhost:8100/currency-conversion/from/USD/to/INR/quantity/10
+
+currency-conversion/from/{from}/to/{to}/quantity/{quantity}
+currency-conversion-feign/from/{from}/to/{to}/quantity/{quantity}
+currency-exchange/from/{from}/to/{to}
