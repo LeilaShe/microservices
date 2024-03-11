@@ -15,6 +15,10 @@ public class CurrencyConversionController {
 
     @Autowired
     CurrencyExchangeProxy proxy;
+    @Autowired
+    RestTemplate restTemplate;
+
+
 
     @GetMapping("/currency-conversion/from/{from}/to/{to}/quantity/{quantity}")
     public CurrencyConversion calculateCurrencyConversion(
@@ -36,6 +40,29 @@ public class CurrencyConversionController {
 
 
     }
+    //uses a rest template annotated with @loadBalanced to perform client side discovery and load balancing with
+    //eureka client
+    @GetMapping("/currency-conversion-loadBalanced-rest/from/{from}/to/{to}/quantity/{quantity}")
+    public CurrencyConversion calculateCurrencyConversionWithLoadBalancedRest(
+            @PathVariable String from,
+            @PathVariable String to,
+            @PathVariable BigDecimal quantity
+    ){
+        HashMap<String,String> uriVariables = new HashMap<>();
+        uriVariables.put("from", from);
+        uriVariables.put("to",to);
+        ResponseEntity<CurrencyConversion> responseEntity = restTemplate
+                .getForEntity("http://CURRENCY-EXCHANGE/currency-exchange/from/{from}/to/{to}",
+                        CurrencyConversion.class,uriVariables);
+        CurrencyConversion currencyConversion = responseEntity.getBody();
+
+        return new CurrencyConversion(currencyConversion.getId(),from,to,currencyConversion.getConversionMultiple(),
+                quantity,quantity.multiply(currencyConversion.getConversionMultiple())
+                ,currencyConversion.getEnvironment() + " loadBalanced clientside service discovery Rest Template");
+
+
+    }
+
 
     @GetMapping("/currency-conversion-feign/from/{from}/to/{to}/quantity/{quantity}")
     public CurrencyConversion calculateCurrencyConversionFeign(
